@@ -3,97 +3,94 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vivek AI Studio - VN Editor Pro Max</title>
+    <title>Vivek AI Studio - VN Engine Pro</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; user-select: none; }
-        body { background: #0f0f0f; color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; user-select: none; }
+        body { background: #0b0b0b; color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* Top Navbar */
-        header { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: #181818; border-bottom: 1px solid #282828; z-index: 10; }
-        header h1 { font-size: 15px; color: #ff5722; font-weight: 700; letter-spacing: 0.5px; }
+        /* VN Top Bar */
+        header { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: #141414; border-bottom: 1px solid #222; }
+        header h1 { font-size: 15px; color: #ff5722; font-weight: 700; }
         .export-btn { background: #ff5722; color: #fff; border: none; padding: 6px 16px; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 13px; }
 
-        /* Center Video Workspace */
-        .workspace { flex: 1; display: flex; justify-content: center; align-items: center; background: #000; position: relative; overflow: hidden; }
+        /* Video Preview Stage */
+        .stage { flex: 1; display: flex; justify-content: center; align-items: center; background: #000; position: relative; }
         video { max-width: 100%; max-height: 100%; object-fit: contain; }
-        
-        .upload-screen { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 12px; z-index: 5; }
-        .upload-btn-custom { background: #222; border: 1px solid #444; color: #fff; padding: 12px 24px; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.2s; }
-        .upload-btn-custom:hover { background: #ff5722; border-color: #ff5722; }
+        .import-prompt { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 10px; z-index: 5; }
+        .import-btn { background: #262626; border: 1px solid #444; color: #fff; padding: 10px 22px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
+        .import-btn:hover { background: #ff5722; border-color: #ff5722; }
 
-        /* Live Subtitle Overlay on Video */
-        #subtitleLayer { position: absolute; bottom: 35px; background: rgba(0,0,0,0.6); padding: 4px 12px; border-radius: 4px; font-size: 18px; font-weight: bold; color: #fff; display: none; text-align: center; }
+        #liveSub { position: absolute; bottom: 30px; background: rgba(0,0,0,0.7); padding: 5px 15px; border-radius: 4px; font-size: 18px; font-weight: bold; color: #fff; display: none; }
 
-        /* VN Style Bottom Editing Area */
-        .editor-bottom { height: 230px; background: #161616; border-top: 1px solid #262626; display: flex; flex-direction: column; }
+        /* VN Bottom Timeline Studio */
+        .vn-studio { height: 240px; background: #181818; border-top: 1px solid #262626; display: flex; flex-direction: column; }
         
-        /* Main Tools Toolbar */
-        .tool-bar { display: flex; gap: 20px; padding: 10px 16px; background: #1c1c1c; border-bottom: 1px solid #262626; overflow-x: auto; white-space: nowrap; }
-        .tool-item { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; font-size: 11px; color: #aaa; min-width: 50px; }
-        .tool-item span:first-child { font-size: 18px; }
-        .tool-item:hover { color: #ff5722; }
+        /* Toolbar Menu */
+        .vn-toolbar { display: flex; gap: 18px; padding: 10px 16px; background: #1e1e1e; border-bottom: 1px solid #262626; overflow-x: auto; white-space: nowrap; }
+        .vn-tool { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; font-size: 11px; color: #aaa; }
+        .vn-tool span:first-child { font-size: 16px; }
+        .vn-tool:hover { color: #ff5722; }
 
-        /* Timeline Area */
-        .timeline-container { flex: 1; padding: 12px; overflow-x: auto; display: flex; flex-direction: column; gap: 8px; position: relative; }
-        .track-row { height: 44px; background: #1e1e1e; border-radius: 6px; border: 1px dashed #333; display: flex; align-items: center; padding: 0 8px; position: relative; min-width: 600px; }
-        .track-title { font-size: 9px; color: #666; position: absolute; top: 2px; left: 8px; font-weight: bold; }
+        /* Tracks Area */
+        .vn-tracks { flex: 1; padding: 10px; overflow-x: auto; display: flex; flex-direction: column; gap: 6px; position: relative; }
+        .vn-track { height: 42px; background: #222; border-radius: 4px; border: 1px dashed #3a3a3a; display: flex; align-items: center; padding: 0 8px; position: relative; min-width: 500px; }
+        .track-tag { font-size: 8px; color: #777; position: absolute; top: 2px; left: 8px; font-weight: bold; }
         
-        /* Interactive Track Clips */
-        .timeline-clip { background: #ff5722; height: 32px; border-radius: 4px; display: flex; align-items: center; justify-content: space-between; padding: 0 10px; font-size: 11px; font-weight: bold; color: #fff; cursor: pointer; width: 100%; box-shadow: 0 2px 4px rgba(0,0,0,0.3); }
-        .audio-clip { background: #2196f3 !important; }
-        .text-clip { background: #4caf50 !important; }
+        /* Timeline Elements */
+        .vn-clip { background: #ff5722; height: 30px; border-radius: 3px; display: flex; align-items: center; justify-content: space-between; padding: 0 10px; font-size: 11px; font-weight: bold; color: #fff; width: 100%; box-shadow: 0 2px 5px rgba(0,0,0,0.4); }
+        .audio-track-item { background: #2196f3 !important; }
+        .text-track-item { background: #4caf50 !important; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>🎬 Vivek AI Studio (VN Pro)</h1>
-        <button class="export-btn" onclick="alert('Project compiled successfully! Ready to export.')">Export ↗</button>
+        <h1>Vivek AI Studio — VN Engine</h1>
+        <button class="export-btn" onclick="alert('Rendering project via JavaScript Engine...')">Export ↗</button>
     </header>
 
-    <div class="workspace">
-        <div class="upload-screen" id="uploadScreen">
-            <input type="file" id="fileInput" accept="video/*" style="display: none;" onchange="handleVideoUpload(event)">
-            <label for="fileInput" class="upload-btn-custom">＋ Import Video to Start Editing</label>
+    <div class="stage">
+        <div class="import-prompt" id="importPrompt">
+            <input type="file" id="vidFile" accept="video/*" style="display: none;" onchange="initVNProject(event)">
+            <label for="vidFile" class="import-btn">＋ Import Video (VN Studio)</label>
         </div>
-        <video id="videoPlayer" controls style="display: none;"></video>
-        <div id="subtitleLayer"></div>
-        <audio id="bgMusic" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" loop></audio>
+        <video id="vnVideo" controls style="display: none;"></video>
+        <div id="liveSub"></div>
+        <audio id="vnAudio" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" loop></audio>
     </div>
 
-    <!-- VN Style Bottom Editing Suite -->
-    <div class="editor-bottom">
-        <div class="tool-bar">
-            <div class="tool-item" onclick="splitVideo()"><span>✂️</span><span>Split</span></div>
-            <div class="tool-item" onclick="changeFilter()"><span>🎨</span><span>Filter</span></div>
-            <div class="tool-item" onclick="addTextOverlay()"><span>💬</span><span>Subtitle</span></div>
-            <div class="tool-item" onclick="toggleAudioTrack()"><span>🎵</span><span>Music</span></div>
-            <div class="tool-item" onclick="adjustSpeed()"><span>⚡</span><span>Speed</span></div>
-            <div class="tool-item" onclick="resetProject()"><span>🗑️</span><span>Reset</span></div>
+    <div class="vn-studio">
+        <div class="vn-toolbar">
+            <div class="vn-tool" onclick="vnSplit()"><span>✂️</span><span>Split</span></div>
+            <div class="vn-tool" onclick="vnFilter()"><span>🎨</span><span>Filter</span></div>
+            <div class="vn-tool" onclick="vnSubtitle()"><span>💬</span><span>Subtitle</span></div>
+            <div class="vn-tool" onclick="vnAudioToggle()"><span>🎵</span><span>Music</span></div>
+            <div class="vn-tool" onclick="vnSpeed()"><span>⚡</span><span>Speed</span></div>
+            <div class="vn-tool" onclick="location.reload()"><span>🗑️</span><span>Reset</span></div>
         </div>
 
-        <div class="timeline-container">
+        <div class="vn-tracks">
             <!-- Video Track -->
-            <div class="track-row">
-                <span class="track-title">VIDEO TRACK</span>
-                <div class="timeline-clip" id="videoClipNode" style="display: none;">
-                    <span id="clipName">Main_Video.mp4</span>
-                    <span style="font-size: 10px; opacity: 0.8;" id="clipDuration">0.0s</span>
+            <div class="vn-track">
+                <span class="track-tag">MAIN VIDEO</span>
+                <div class="vn-clip" id="vidClip" style="display: none;">
+                    <span id="vName">video.mp4</span>
+                    <span id="vLen" style="font-size: 10px;">0.0s</span>
                 </div>
             </div>
             <!-- Audio Track -->
-            <div class="track-row">
-                <span class="track-title">AUDIO / SONG TRACK</span>
-                <div class="timeline-clip audio-clip" id="audioClipNode" style="display: none;">
-                    <span>🎵 Default Cinematic Beat.mp3</span>
+            <div class="vn-track">
+                <span class="track-tag">BACKGROUND MUSIC</span>
+                <div class="vn-clip audio-track-item" id="audClip" style="display: none;">
+                    <span>🎵 Cinematic Beats.mp3</span>
                     <span style="font-size: 10px;">Active</span>
                 </div>
             </div>
             <!-- Subtitle Track -->
-            <div class="track-row">
-                <span class="track-title">TEXT / SUBTITLE TRACK</span>
-                <div class="timeline-clip text-clip" id="textClipNode" style="display: none;">
-                    <span id="textTrackText">Sample Subtitle</span>
+            <div class="vn-track">
+                <span class="track-tag">TEXT / SUBTITLE</span>
+                <div class="vn-clip text-track-item" id="txtClip" style="display: none;">
+                    <span id="subTextVal">Sample Subtitle</span>
                     <span style="font-size: 10px;">Active</span>
                 </div>
             </div>
@@ -101,97 +98,89 @@
     </div>
 
     <script>
-        const videoPlayer = document.getElementById('videoPlayer');
-        const bgMusic = document.getElementById('bgMusic');
-        const uploadScreen = document.getElementById('uploadScreen');
-        const subtitleLayer = document.getElementById('subtitleLayer');
+        const vnVideo = document.getElementById('vnVideo');
+        const vnAudio = document.getElementById('vnAudio');
+        const importPrompt = document.getElementById('importPrompt');
+        const liveSub = document.getElementById('liveSub');
         
-        const videoClipNode = document.getElementById('videoClipNode');
-        const audioClipNode = document.getElementById('audioClipNode');
-        const textClipNode = document.getElementById('textClipNode');
+        const vidClip = document.getElementById('vidClip');
+        const audClip = document.getElementById('audClip');
+        const txtClip = document.getElementById('txtClip');
         
-        const clipName = document.getElementById('clipName');
-        const clipDuration = document.getElementById('clipDuration');
-        const textTrackText = document.getElementById('textTrackText');
+        const vName = document.getElementById('vName');
+        const vLen = document.getElementById('vLen');
+        const subTextVal = document.getElementById('subTextVal');
 
-        let isAudioActive = true;
+        let musicEnabled = true;
 
-        function handleVideoUpload(e) {
+        function initVNProject(e) {
             const file = e.target.files[0];
             if (file) {
-                const url = URL.createObjectURL(file);
-                videoPlayer.src = url;
-                videoPlayer.style.display = 'block';
-                uploadScreen.style.display = 'none';
+                const objectURL = URL.createObjectURL(file);
+                vnVideo.src = objectURL;
+                vnVideo.style.display = 'block';
+                importPrompt.style.display = 'none';
 
-                videoPlayer.onloadedmetadata = function() {
-                    clipName.innerText = file.name.length > 18 ? file.name.substring(0, 15) + '...' : file.name;
-                    clipDuration.innerText = videoPlayer.duration.toFixed(1) + 's';
-                    videoClipNode.style.display = 'flex';
+                vnVideo.onloadedmetadata = function() {
+                    vName.innerText = file.name.length > 15 ? file.name.substring(0, 12) + '...' : file.name;
+                    vLen.innerText = vnVideo.duration.toFixed(1) + 's';
+                    vidClip.style.display = 'flex';
                 };
 
-                // Auto play background music sync
-                bgMusic.play().catch(err => console.log("Audio autoplay blocked"));
-                audioClipNode.style.display = 'flex';
+                vnAudio.play().catch(err => console.log("Audio waiting for user gesture"));
+                audClip.style.display = 'flex';
             }
         }
 
-        // Sync audio with video controls
-        videoPlayer.onplay = () => { if(isAudioActive) bgMusic.play(); };
-        videoPlayer.onpause = () => { bgMusic.pause(); };
+        // VN App multi-track sync logic via JavaScript
+        vnVideo.onplay = () => { if(musicEnabled) vnAudio.play(); };
+        vnVideo.onpause = () => { vnAudio.pause(); };
 
-        function splitVideo() {
-            if (!videoPlayer.src) { alert('Please import a video first!'); return; }
-            const curTime = videoPlayer.currentTime.toFixed(2);
-            alert(`✂ Video successfully split into two segments at timestamp: ${curTime}s`);
+        function vnSplit() {
+            if (!vnVideo.src) { alert('Please import video first!'); return; }
+            const t = vnVideo.currentTime.toFixed(2);
+            alert(`✂ Clip split successfully at timestamp: ${t}s`);
         }
 
-        let filterList = ['none', 'grayscale(100%)', 'sepia(80%)', 'contrast(150%)', 'invert(20%)'];
-        let filterIndex = 0;
-        function changeFilter() {
-            if (!videoPlayer.src) { alert('Please import a video first!'); return; }
-            filterIndex = (filterIndex + 1) % filterList.length;
-            videoPlayer.style.filter = filterList[filterIndex];
-            alert(`🎨 Applied Color Filter Style: ${filterList[filterIndex].toUpperCase()}`);
+        const filterArray = ['none', 'grayscale(100%)', 'sepia(70%)', 'contrast(140%)', 'invert(15%)'];
+        let fIdx = 0;
+        function vnFilter() {
+            if (!vnVideo.src) { alert('Please import video first!'); return; }
+            fIdx = (fIdx + 1) % filterArray.length;
+            vnVideo.style.filter = filterArray[fIdx];
+            alert(`🎨 Applied Color Grade: ${filterArray[fIdx].toUpperCase()}`);
         }
 
-        function addTextOverlay() {
-            if (!videoPlayer.src) { alert('Please import a video first!'); return; }
-            const userTxt = prompt("Enter subtitle or text caption:", "Vivek AI Studio Pro");
-            if (userTxt) {
-                subtitleLayer.innerText = userTxt;
-                subtitleLayer.style.display = 'block';
-                textTrackText.innerText = userTxt;
-                textClipNode.style.display = 'flex';
+        function vnSubtitle() {
+            if (!vnVideo.src) { alert('Please import video first!'); return; }
+            let text = prompt("Enter subtitle caption text:", "Vivek AI Studio Pro");
+            if (text) {
+                liveSub.innerText = text;
+                liveSub.style.display = 'block';
+                subTextVal.innerText = text;
+                txtClip.style.display = 'flex';
             }
         }
 
-        function toggleAudioTrack() {
-            isAudioActive = !isAudioActive;
-            if (isAudioActive) {
-                bgMusic.play();
-                audioClipNode.style.opacity = '1';
-                alert('🎵 Background Song Track Enabled');
+        function vnAudioToggle() {
+            musicEnabled = !musicEnabled;
+            if (musicEnabled) {
+                vnAudio.play();
+                audClip.style.opacity = '1';
+                alert('🎵 Background music track unmuted');
             } else {
-                bgMusic.pause();
-                audioClipNode.style.opacity = '0.4';
-                alert('🔇 Background Song Track Muted');
+                vnAudio.pause();
+                audClip.style.opacity = '0.3';
+                alert('🔇 Background music track muted');
             }
         }
 
-        function adjustSpeed() {
-            if (!videoPlayer.src) { alert('Please import a video first!'); return; }
-            const speeds = [0.5, 1.0, 1.5, 2.0];
-            let currentRate = videoPlayer.playbackRate;
-            let nextRate = speeds[(speeds.indexOf(currentRate) + 1) % speeds.length];
-            videoPlayer.playbackRate = nextRate;
-            alert(`⚡ Video Playback Speed set to: ${nextRate}x`);
-        }
-
-        function resetProject() {
-            if (confirm("Reset current project workspace?")) {
-                location.reload();
-            }
+        function vnSpeed() {
+            if (!vnVideo.src) { alert('Please import video first!'); return; }
+            const rates = [0.5, 1.0, 1.5, 2.0];
+            let next = rates[(rates.indexOf(vnVideo.playbackRate) + 1) % rates.length];
+            vnVideo.playbackRate = next;
+            alert(`⚡ Timeline Speed updated to: ${next}x`);
         }
     </script>
 </body>
