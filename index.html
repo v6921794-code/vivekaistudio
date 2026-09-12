@@ -3,184 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vivek AI Studio - VN Engine Pro</title>
+    <title>Vivek AI Studio - YouTube Edition</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; user-select: none; }
-        body { background: #0b0b0b; color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: Roboto, Arial, sans-serif; }
+        body { background: #0f0f0f; color: #fff; min-height: 100vh; display: flex; flex-direction: column; }
 
-        /* VN Top Bar */
-        header { display: flex; justify-content: space-between; align-items: center; padding: 12px 20px; background: #141414; border-bottom: 1px solid #222; }
-        header h1 { font-size: 15px; color: #ff5722; font-weight: 700; }
-        .export-btn { background: #ff5722; color: #fff; border: none; padding: 6px 16px; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 13px; }
-
-        /* Video Preview Stage */
-        .stage { flex: 1; display: flex; justify-content: center; align-items: center; background: #000; position: relative; }
-        video { max-width: 100%; max-height: 100%; object-fit: contain; }
-        .import-prompt { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 10px; z-index: 5; }
-        .import-btn { background: #262626; border: 1px solid #444; color: #fff; padding: 10px 22px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; }
-        .import-btn:hover { background: #ff5722; border-color: #ff5722; }
-
-        #liveSub { position: absolute; bottom: 30px; background: rgba(0,0,0,0.7); padding: 5px 15px; border-radius: 4px; font-size: 18px; font-weight: bold; color: #fff; display: none; }
-
-        /* VN Bottom Timeline Studio */
-        .vn-studio { height: 240px; background: #181818; border-top: 1px solid #262626; display: flex; flex-direction: column; }
+        /* YouTube Top Header */
+        header { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: #0f0f0f; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #222; }
+        .logo-area { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: bold; color: #fff; cursor: pointer; }
+        .logo-area span { color: #ff0000; font-size: 24px; }
         
-        /* Toolbar Menu */
-        .vn-toolbar { display: flex; gap: 18px; padding: 10px 16px; background: #1e1e1e; border-bottom: 1px solid #262626; overflow-x: auto; white-space: nowrap; }
-        .vn-tool { display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; font-size: 11px; color: #aaa; }
-        .vn-tool span:first-child { font-size: 16px; }
-        .vn-tool:hover { color: #ff5722; }
+        .search-bar { display: flex; width: 40%; max-width: 500px; background: #121212; border: 1px solid #303030; border-radius: 40px; overflow: hidden; }
+        .search-bar input { flex: 1; background: transparent; border: none; padding: 8px 16px; color: #fff; font-size: 14px; outline: none; }
+        .search-bar button { background: #222; border: none; padding: 0 20px; cursor: pointer; color: #aaa; }
 
-        /* Tracks Area */
-        .vn-tracks { flex: 1; padding: 10px; overflow-x: auto; display: flex; flex-direction: column; gap: 6px; position: relative; }
-        .vn-track { height: 42px; background: #222; border-radius: 4px; border: 1px dashed #3a3a3a; display: flex; align-items: center; padding: 0 8px; position: relative; min-width: 500px; }
-        .track-tag { font-size: 8px; color: #777; position: absolute; top: 2px; left: 8px; font-weight: bold; }
+        .header-actions { display: flex; gap: 15px; align-items: center; }
+        .upload-icon-btn { background: #222; border: none; color: #fff; padding: 8px 14px; border-radius: 20px; font-size: 13px; cursor: pointer; font-weight: 500; }
+
+        /* Categories Bar */
+        .categories { display: flex; gap: 10px; padding: 12px 16px; background: #0f0f0f; overflow-x: auto; border-bottom: 1px solid #222; white-space: nowrap; }
+        .cat-chip { background: #272727; padding: 6px 12px; border-radius: 8px; font-size: 13px; cursor: pointer; transition: 0.2s; }
+        .cat-chip.active, .cat-chip:hover { background: #fff; color: #0f0f0f; font-weight: 500; }
+
+        /* Video Feed Grid */
+        .feed-container { padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; flex: 1; }
+        .video-card { background: transparent; display: flex; flex-direction: column; cursor: pointer; gap: 10px; }
+        .thumbnail { width: 100%; height: 160px; background: #212121; border-radius: 12px; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; color: #777; font-size: 14px; }
+        .thumbnail video { width: 100%; height: 100%; object-fit: cover; display: none; }
         
-        /* Timeline Elements */
-        .vn-clip { background: #ff5722; height: 30px; border-radius: 3px; display: flex; align-items: center; justify-content: space-between; padding: 0 10px; font-size: 11px; font-weight: bold; color: #fff; width: 100%; box-shadow: 0 2px 5px rgba(0,0,0,0.4); }
-        .audio-track-item { background: #2196f3 !important; }
-        .text-track-item { background: #4caf50 !important; }
+        .video-info { display: flex; gap: 12px; }
+        .channel-avatar { width: 36px; height: 36px; background: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; color: #fff; }
+        .video-details h3 { font-size: 14px; font-weight: 500; color: #fff; line-height: 20px; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .video-details p { font-size: 12px; color: #aaa; }
+
+        /* Watch Modal Player */
+        #watchModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f0f0f; z-index: 1000; display: none; flex-direction: column; padding: 20px; overflow-y: auto; }
+        .back-btn { background: #222; border: none; color: #fff; padding: 8px 16px; border-radius: 6px; cursor: pointer; width: fit-content; margin-bottom: 15px; font-weight: bold; }
+        .player-wrapper { width: 100%; max-width: 900px; margin: 0 auto; background: #000; border-radius: 12px; overflow: hidden; }
+        .player-wrapper video { width: 100%; max-height: 500px; display: block; }
+        .watch-title { max-width: 900px; margin: 15px auto 0; font-size: 18px; font-weight: bold; width: 100%; }
     </style>
 </head>
 <body>
 
     <header>
-        <h1>Vivek AI Studio — VN Engine</h1>
-        <button class="export-btn" onclick="alert('Rendering project via JavaScript Engine...')">Export ↗</button>
+        <div class="logo-area" onclick="closeWatch()"><span>▶</span> VivekTube</div>
+        <div class="search-bar">
+            <input type="text" placeholder="Search videos...">
+            <button>🔍</button>
+        </div>
+        <div class="header-actions">
+            <input type="file" id="localVideoUpload" accept="video/*" style="display: none;" onchange="publishVideo(event)">
+            <button class="upload-icon-btn" onclick="document.getElementById('localVideoUpload').click()">＋ Upload</button>
+        </div>
     </header>
 
-    <div class="stage">
-        <div class="import-prompt" id="importPrompt">
-            <input type="file" id="vidFile" accept="video/*" style="display: none;" onchange="initVNProject(event)">
-            <label for="vidFile" class="import-btn">＋ Import Video (VN Studio)</label>
-        </div>
-        <video id="vnVideo" controls style="display: none;"></video>
-        <div id="liveSub"></div>
-        <audio id="vnAudio" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" loop></audio>
+    <div class="categories">
+        <div class="cat-chip active">All</div>
+        <div class="cat-chip">Gaming</div>
+        <div class="cat-chip">Tech</div>
+        <div class="cat-chip">Music</div>
+        <div class="cat-chip">Biotechnology</div>
+        <div class="cat-chip">Podcasts</div>
+        <div class="cat-chip">Live</div>
     </div>
 
-    <div class="vn-studio">
-        <div class="vn-toolbar">
-            <div class="vn-tool" onclick="vnSplit()"><span>✂️</span><span>Split</span></div>
-            <div class="vn-tool" onclick="vnFilter()"><span>🎨</span><span>Filter</span></div>
-            <div class="vn-tool" onclick="vnSubtitle()"><span>💬</span><span>Subtitle</span></div>
-            <div class="vn-tool" onclick="vnAudioToggle()"><span>🎵</span><span>Music</span></div>
-            <div class="vn-tool" onclick="vnSpeed()"><span>⚡</span><span>Speed</span></div>
-            <div class="vn-tool" onclick="location.reload()"><span>🗑️</span><span>Reset</span></div>
+    <!-- Main Video Feed -->
+    <div class="feed-container" id="videoFeed">
+        <!-- Sample YouTube Video Cards -->
+        <div class="video-card" onclick="openSampleVideo('https://www.w3schools.com/html/mov_bbb.mp4', 'Big Buck Bunny Cinematic Trailer 4K')">
+            <div class="thumbnail">
+                <video src="https://www.w3schools.com/html/mov_bbb.mp4" muted></video>
+                ▶ Play Preview
+            </div>
+            <div class="video-info">
+                <div class="channel-avatar" style="background:#e91e63;">V</div>
+                <div class="video-details">
+                    <h3>Big Buck Bunny Cinematic Trailer 4K (Remastered)</h3>
+                    <p>Vivek AI Studio • 120K views • 2 days ago</p>
+                </div>
+            </div>
         </div>
 
-        <div class="vn-tracks">
-            <!-- Video Track -->
-            <div class="vn-track">
-                <span class="track-tag">MAIN VIDEO</span>
-                <div class="vn-clip" id="vidClip" style="display: none;">
-                    <span id="vName">video.mp4</span>
-                    <span id="vLen" style="font-size: 10px;">0.0s</span>
-                </div>
+        <div class="video-card" onclick="openSampleVideo('https://www.w3schools.com/html/mov_bbb.mp4', 'Biotechnology 1st Year Lecture - Cell Structure')">
+            <div class="thumbnail">
+                <video src="https://www.w3schools.com/html/mov_bbb.mp4" muted></video>
+                ▶ Play Preview
             </div>
-            <!-- Audio Track -->
-            <div class="vn-track">
-                <span class="track-tag">BACKGROUND MUSIC</span>
-                <div class="vn-clip audio-track-item" id="audClip" style="display: none;">
-                    <span>🎵 Cinematic Beats.mp3</span>
-                    <span style="font-size: 10px;">Active</span>
-                </div>
-            </div>
-            <!-- Subtitle Track -->
-            <div class="vn-track">
-                <span class="track-tag">TEXT / SUBTITLE</span>
-                <div class="vn-clip text-track-item" id="txtClip" style="display: none;">
-                    <span id="subTextVal">Sample Subtitle</span>
-                    <span style="font-size: 10px;">Active</span>
+            <div class="video-info">
+                <div class="channel-avatar" style="background:#2196f3;">B</div>
+                <div class="video-details">
+                    <h3>Biotechnology 1st Year Lecture - Cell Structure & Organelles</h3>
+                    <p>Tyagi Education • 45K views • 1 week ago</p>
                 </div>
             </div>
         </div>
+    </div>
+
+    <!-- YouTube Watch Page Modal -->
+    <div id="watchModal">
+        <button class="back-btn" onclick="closeWatch()">← Back to Feed</button>
+        <div class="player-wrapper">
+            <video id="activePlayer" controls autoplay></video>
+        </div>
+        <div class="watch-title" id="watchTitle">Video Title Here</div>
     </div>
 
     <script>
-        const vnVideo = document.getElementById('vnVideo');
-        const vnAudio = document.getElementById('vnAudio');
-        const importPrompt = document.getElementById('importPrompt');
-        const liveSub = document.getElementById('liveSub');
-        
-        const vidClip = document.getElementById('vidClip');
-        const audClip = document.getElementById('audClip');
-        const txtClip = document.getElementById('txtClip');
-        
-        const vName = document.getElementById('vName');
-        const vLen = document.getElementById('vLen');
-        const subTextVal = document.getElementById('subTextVal');
+        const watchModal = document.getElementById('watchModal');
+        const activePlayer = document.getElementById('activePlayer');
+        const watchTitle = document.getElementById('watchTitle');
+        const videoFeed = document.getElementById('videoFeed');
 
-        let musicEnabled = true;
+        function openSampleVideo(url, title) {
+            activePlayer.src = url;
+            watchTitle.innerText = title;
+            watchModal.style.display = 'flex';
+            activePlayer.play();
+        }
 
-        function initVNProject(e) {
-            const file = e.target.files[0];
+        function closeWatch() {
+            activePlayer.pause();
+            activePlayer.src = '';
+            watchModal.style.display = 'none';
+        }
+
+        function publishVideo(event) {
+            const file = event.target.files[0];
             if (file) {
-                const objectURL = URL.createObjectURL(file);
-                vnVideo.src = objectURL;
-                vnVideo.style.display = 'block';
-                importPrompt.style.display = 'none';
-
-                vnVideo.onloadedmetadata = function() {
-                    vName.innerText = file.name.length > 15 ? file.name.substring(0, 12) + '...' : file.name;
-                    vLen.innerText = vnVideo.duration.toFixed(1) + 's';
-                    vidClip.style.display = 'flex';
-                };
-
-                vnAudio.play().catch(err => console.log("Audio waiting for user gesture"));
-                audClip.style.display = 'flex';
+                const url = URL.createObjectURL(file);
+                const card = document.createElement('div');
+                card.className = 'video-card';
+                card.onclick = () => openSampleVideo(url, file.name);
+                
+                card.innerHTML = `
+                    <div class="thumbnail" style="background:#000;">
+                        <video src="${url}"></video>
+                        ▶ Watch
+                    </div>
+                    <div class="video-info">
+                        <div class="channel-avatar" style="background:#ff5722;">T</div>
+                        <div class="video-details">
+                            <h3>${file.name}</h3>
+                            <p>Tyagi Ji Official • Just now • 1 view</p>
+                        </div>
+                    </div>
+                `;
+                videoFeed.prepend(card);
+                alert('Video successfully uploaded to your YouTube feed!');
             }
-        }
-
-        // VN App multi-track sync logic via JavaScript
-        vnVideo.onplay = () => { if(musicEnabled) vnAudio.play(); };
-        vnVideo.onpause = () => { vnAudio.pause(); };
-
-        function vnSplit() {
-            if (!vnVideo.src) { alert('Please import video first!'); return; }
-            const t = vnVideo.currentTime.toFixed(2);
-            alert(`✂ Clip split successfully at timestamp: ${t}s`);
-        }
-
-        const filterArray = ['none', 'grayscale(100%)', 'sepia(70%)', 'contrast(140%)', 'invert(15%)'];
-        let fIdx = 0;
-        function vnFilter() {
-            if (!vnVideo.src) { alert('Please import video first!'); return; }
-            fIdx = (fIdx + 1) % filterArray.length;
-            vnVideo.style.filter = filterArray[fIdx];
-            alert(`🎨 Applied Color Grade: ${filterArray[fIdx].toUpperCase()}`);
-        }
-
-        function vnSubtitle() {
-            if (!vnVideo.src) { alert('Please import video first!'); return; }
-            let text = prompt("Enter subtitle caption text:", "Vivek AI Studio Pro");
-            if (text) {
-                liveSub.innerText = text;
-                liveSub.style.display = 'block';
-                subTextVal.innerText = text;
-                txtClip.style.display = 'flex';
-            }
-        }
-
-        function vnAudioToggle() {
-            musicEnabled = !musicEnabled;
-            if (musicEnabled) {
-                vnAudio.play();
-                audClip.style.opacity = '1';
-                alert('🎵 Background music track unmuted');
-            } else {
-                vnAudio.pause();
-                audClip.style.opacity = '0.3';
-                alert('🔇 Background music track muted');
-            }
-        }
-
-        function vnSpeed() {
-            if (!vnVideo.src) { alert('Please import video first!'); return; }
-            const rates = [0.5, 1.0, 1.5, 2.0];
-            let next = rates[(rates.indexOf(vnVideo.playbackRate) + 1) % rates.length];
-            vnVideo.playbackRate = next;
-            alert(`⚡ Timeline Speed updated to: ${next}x`);
         }
     </script>
 </body>
