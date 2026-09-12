@@ -1,179 +1,94 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
-    <meta name="google-site-verification" content="y35WksVylTOXwy74WX1oQrnWCzXC3XhkYoNyK4frmm0" />
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vivek AI Studio</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#0f172a">
+    <title>Vivek AI Studio - VN Editor Pro</title>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
-        body { background: #0f172a; color: #f8fafc; min-height: 100vh; padding: 1rem; }
-        header { background: #1e293b; padding: 1rem; text-align: center; border-radius: 8px; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
-        h1 { color: #38bdf8; font-size: 1.4rem; }
-        .auth-btn { background: #0284c7; color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: sans-serif; }
+        body { background: #121212; color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        /* Top Navbar */
+        header { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; background: #1a1a1a; border-bottom: 1px solid #2c2c2c; }
+        header h1 { font-size: 16px; color: #ff5722; }
+        .export-btn { background: #ff5722; color: #fff; border: none; padding: 6px 14px; border-radius: 4px; font-weight: bold; cursor: pointer; }
 
-        /* Install App Banner */
-        .install-banner { background: #0284c7; padding: 0.8rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
-        .install-btn { background: #22c55e; color: white; font-weight: bold; padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; }
+        /* Video Preview Area */
+        .preview-container { flex: 1; display: flex; justify-content: center; align-items: center; background: #000; position: relative; }
+        video { max-width: 100%; max-height: 100%; object-fit: contain; }
+        .upload-overlay { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .upload-overlay label { background: #2b2b2b; padding: 10px 20px; border-radius: 6px; cursor: pointer; border: 1px solid #444; }
 
-        .card { background: #1e293b; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid #334155; }
-        textarea, input, select { width: 100%; padding: 0.7rem; background: #0f172a; border: 1px solid #475569; border-radius: 6px; color: #fff; margin-top: 0.5rem; margin-bottom: 0.8rem; }
+        /* Timeline Area (VN Style) */
+        .timeline-section { height: 180px; background: #181818; border-top: 1px solid #2c2c2c; display: flex; flex-direction: column; }
+        .timeline-tools { display: flex; gap: 15px; padding: 8px 15px; background: #1f1f1f; border-bottom: 1px solid #2c2c2c; font-size: 13px; color: #bbb; overflow-x: auto; }
+        .timeline-tools span { cursor: pointer; padding: 4px 8px; border-radius: 4px; background: #2a2a2a; white-space: nowrap; }
+        .timeline-tools span:hover { background: #ff5722; color: #fff; }
         
-        .option-group { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.8rem; background: #0f172a; padding: 0.6rem; border-radius: 6px; border: 1px solid #334155; }
-        .option-group input[type="checkbox"] { width: auto; margin: 0; }
-        
-        button.action { width: 100%; background: #2563eb; color: #fff; padding: 0.8rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
-        button.download-btn { width: 100%; background: #16a34a; color: white; padding: 0.8rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 0.8rem; display: none; }
-        
-        /* Preview Player */
-        .preview-area { display: none; margin-top: 1rem; text-align: center; }
-        video, img { width: 100%; max-height: 250px; border-radius: 6px; border: 1px solid #475569; }
+        .tracks-container { flex: 1; padding: 10px; overflow-x: auto; display: flex; flex-direction: column; gap: 8px; }
+        .track { height: 45px; background: #222; border-radius: 6px; border: 1px dashed #444; display: flex; align-items: center; padding: 0 10px; position: relative; }
+        .track-label { font-size: 10px; color: #777; position: absolute; top: 2px; left: 8px; }
+        .clip-box { background: #ff5722; height: 32px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; min-width: 100px; cursor: pointer; }
     </style>
 </head>
 <body>
+
     <header>
         <h1>Vivek AI Studio</h1>
-        <button class="auth-btn">Login / Signup</button>
+        <button class="export-btn" onclick="alert('Exporting video...')">Export ↗</button>
     </header>
 
-    <!-- App Download/Install Option -->
-    <div class="install-banner">
-        <span>📲 <b>Vivek AI Studio App Download Karein</b></span>
-        <a href="VivekAIStudio.apk" download class="install-btn">Download APK</a>
+    <div class="preview-container">
+        <div class="upload-overlay" id="uploadOverlay">
+            <input type="file" id="mediaInput" accept="video/*" style="display: none;" onchange="loadVideo(event)">
+            <label for="mediaInput">＋ Tap to Import Video (VN Style)</label>
+        </div>
+        <video id="mainVideo" controls style="display: none;"></video>
     </div>
 
-    <!-- AI Video Generator with Audio & Download -->
-    <div class="card">
-        <h3>🎬 AI Video Generation (Prompt + Voice + Download)</h3>
-        
-        <textarea id="video-prompt" placeholder="Video ka prompt likhein (e.g., A futuristic car driving on water)..."></textarea>
-
-        <div class="option-group">
-            <input type="checkbox" id="add-voice" checked>
-            <label for="add-voice">Is prompt ki Voiceover bhi Video me automatically add karein</label>
+    <div class="timeline-section">
+        <div class="timeline-tools">
+            <span onclick="splitClip()">✂ Split</span>
+            <span onclick="trimClip()">⏳ Trim</span>
+            <span onclick="addFilter()">🎨 Filter</span>
+            <span onclick="addText()">💬 Subtitle</span>
+            <span onclick="addAudio()">🎵 Music</span>
         </div>
-
-        <button class="action" onclick="generateMedia('video')">Generate Video</button>
-
-        <!-- Preview and Download Section -->
-        <div id="video-preview-area" class="preview-area">
-            <h4 style="color:#38bdf8; margin-bottom:0.5rem;">Aapki AI Video Ready Hai:</h4>
-            <video id="output-video" controls src="https://www.w3schools.com/html/mov_bbb.mp4"></video>
-            <a id="video-download-link" download="Vivek_AI_Video.mp4">
-                <button class="download-btn" id="video-download-btn">⬇️ Download Video</button>
-            </a>
-        </div>
-    </div>
-
-    <!-- Photo Generation & Download -->
-    <div class="card">
-        <h3>🖼️ AI Photo Generator & Downloader</h3>
-        <textarea id="photo-prompt" placeholder="Photo ka prompt likhein..."></textarea>
-        <button class="action" onclick="generateMedia('photo')">Generate AI Photo</button>
-
-        <div id="photo-preview-area" class="preview-area">
-            <h4 style="color:#38bdf8; margin-bottom:0.5rem;">Aapki AI Photo Ready Hai:</h4>
-            <img id="output-photo" src="https://via.placeholder.com/600x400/0f172a/38bdf8?text=Vivek+AI+Generated+Image" alt="AI Photo">
-            <a id="photo-download-link" download="Vivek_AI_Photo.png">
-                <button class="download-btn" id="photo-download-btn">⬇️ Download Photo</button>
-            </a>
+        <div class="tracks-container">
+            <div class="track" id="videoTrack">
+                <span class="track-label">VIDEO</span>
+                <span style="font-size: 11px; color: #555; width: 100%; text-align: center;">Timeline is empty</span>
+            </div>
         </div>
     </div>
 
     <script>
-        function generateMedia(type) {
-            if (type === 'video') {
-                const prompt = document.getElementById('video-prompt').value;
-                if(!prompt.trim()) { alert("Kripya video prompt likhein!"); return; }
-                
-                alert("AI Video and Voice sync processing complete!");
-                document.getElementById('video-preview-area').style.display = 'block';
-                document.getElementById('video-download-btn').style.display = 'block';
-            } else if (type === 'photo') {
-                const prompt = document.getElementById('photo-prompt').value;
-                if(!prompt.trim()) { alert("Kripya photo prompt likhein!"); return; }
+        const mainVideo = document.getElementById('mainVideo');
+        const uploadOverlay = document.getElementById('uploadOverlay');
+        const videoTrack = document.getElementById('videoTrack');
 
-                alert("AI Photo generated!");
-                document.getElementById('photo-preview-area').style.display = 'block';
-                document.getElementById('photo-download-btn').style.display = 'block';
+        function loadVideo(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                mainVideo.src = url;
+                mainVideo.style.display = 'block';
+                uploadOverlay.style.display = 'none';
+
+                // Populate Timeline Track
+                videoTrack.innerHTML = '<span class="track-label">VIDEO</span><div class="clip-box">Main Video Clip</div>';
             }
         }
 
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js');
+        function splitClip() {
+            if (!mainVideo.src) { alert('Please load a video first!'); return; }
+            alert('Video split at time: ' + mainVideo.currentTime.toFixed(2) + 's');
         }
+
+        function trimClip() { if(mainVideo.src) alert('Select start and end handles on timeline.'); else alert('Load video first.'); }
+        function addFilter() { alert('Color filters (LUTs) panel opening...'); }
+        function addText() { alert('Text / Subtitle editor opening...'); }
+        function addAudio() { alert('Audio track manager opening...'); }
     </script>
 </body>
 </html>
-<div style="background: #181818; color: #fff; padding: 20px; border-radius: 12px; max-width: 700px; margin: 20px auto; font-family: sans-serif;">
-    <h3>🎞️ Vivek AI Studio - VN Style Timeline Editor</h3>
-    <input type="file" id="vnVideoUpload" accept="video/*" style="margin-bottom: 15px; width: 100%;"><br>
-    
-    <div style="position: relative; background: #000; border-radius: 8px; overflow: hidden; text-align: center;">
-        <video id="vnVideoPreview" style="width: 100%; max-height: 320px; display: block;"></video>
-    </div>
-
-    <!-- Playback Controls -->
-    <div style="display: flex; gap: 10px; margin-top: 15px; justify-content: center;">
-        <button onclick="vnPlayPause()" style="background: #333; color: white; border: 1px solid #555; padding: 8px 16px; border-radius: 6px; cursor: pointer;">⏯ Play/Pause</button>
-        <button onclick="vnSplitVideo()" style="background: #e50914; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold;">✂ Split / Cut</button>
-    </div>
-
-    <!-- Timeline Track UI -->
-    <div style="margin-top: 20px; background: #222; padding: 10px; border-radius: 6px;">
-        <label style="font-size: 12px; color: #aaa;">Video Track Timeline</label>
-        <div id="timelineTrack" style="height: 50px; background: #2d2d2d; border-radius: 4px; margin-top: 5px; position: relative; border: 1px dashed #555; display: flex; align-items: center; padding: 0 5px; overflow-x: auto;">
-            <span id="timelinePlaceholder" style="font-size: 12px; color: #777; width: 100%; text-align: center;">No video loaded on timeline</span>
-        </div>
-    </div>
-</div>
-
-<script>
-    const vnVideoUpload = document.getElementById('vnVideoUpload');
-    const vnVideoPreview = document.getElementById('vnVideoPreview');
-    const timelineTrack = document.getElementById('timelineTrack');
-    const timelinePlaceholder = document.getElementById('timelinePlaceholder');
-
-    let videoClips = [];
-
-    vnVideoUpload.addEventListener('change', function(event) {
-        const file = event.target.files[0];
-        if (file) {
-            const fileURL = URL.createObjectURL(file);
-            vnVideoPreview.src = fileURL;
-            
-            // Add to virtual timeline track
-            videoClips.push({ start: 0, duration: 10, file: fileURL });
-            renderTimeline();
-        }
-    });
-
-    function vnPlayPause() {
-        if (vnVideoPreview.paused) {
-            vnVideoPreview.play();
-        } else {
-            vnVideoPreview.pause();
-        }
-    }
-
-    function vnSplitVideo() {
-        if (!vnVideoPreview.src) return;
-        const currentTime = vnVideoPreview.currentTime;
-        alert("Video split successfully at: " + currentTime.toFixed(2) + " seconds!");
-        // Adds split marker logic for multi-clip editing
-        videoClips.push({ splitPoint: currentTime });
-        renderTimeline();
-    }
-
-    function renderTimeline() {
-        timelineTrack.innerHTML = '';
-        videoClips.forEach((clip, index) => {
-            const clipBox = document.createElement('div');
-            clipBox.style.cssText = "background: #ff5722; height: 35px; min-width: 120px; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 11px; margin-right: 5px; color: #fff; font-weight: bold;";
-            clipBox.innerText = `Clip ${index + 1}`;
-            timelineTrack.appendChild(clipBox);
-        });
-    }
-</script>
