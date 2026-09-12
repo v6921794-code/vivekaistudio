@@ -3,154 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vivek AI Studio - YouTube Edition</title>
+    <title>Vivek AI Studio - YouTube Style</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: Roboto, Arial, sans-serif; }
-        body { background: #0f0f0f; color: #fff; min-height: 100vh; display: flex; flex-direction: column; }
+        body { background: #0f0f0f; color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* YouTube Top Header */
-        header { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: #0f0f0f; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #222; }
-        .logo-area { display: flex; align-items: center; gap: 8px; font-size: 18px; font-weight: bold; color: #fff; cursor: pointer; }
-        .logo-area span { color: #ff0000; font-size: 24px; }
+        /* YouTube Top Navbar */
+        header { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: #212121; border-bottom: 1px solid #383838; }
+        .logo-area { display: flex; align-items: center; gap: 8px; font-weight: bold; font-size: 16px; color: #ff0000; }
+        .search-bar { background: #121212; border: 1px solid #303030; padding: 6px 12px; border-radius: 20px; color: #fff; width: 40%; font-size: 14px; }
+        .user-profile { font-size: 13px; background: #333; padding: 5px 10px; border-radius: 50%; font-weight: bold; }
+
+        /* Main Content Layout */
+        .main-container { flex: 1; display: flex; overflow: hidden; }
         
-        .search-bar { display: flex; width: 40%; max-width: 500px; background: #121212; border: 1px solid #303030; border-radius: 40px; overflow: hidden; }
-        .search-bar input { flex: 1; background: transparent; border: none; padding: 8px 16px; color: #fff; font-size: 14px; outline: none; }
-        .search-bar button { background: #222; border: none; padding: 0 20px; cursor: pointer; color: #aaa; }
+        /* Left/Center: Video Player & Details */
+        .content-area { flex: 2; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; }
+        .player-wrapper { width: 100%; background: #000; border-radius: 12px; overflow: hidden; position: relative; aspect-ratio: 16/9; display: flex; justify-content: center; align-items: center; }
+        video { width: 100%; height: 100%; object-fit: contain; }
+        .video-title { font-size: 18px; font-weight: 600; color: #f1f1f1; }
+        .video-actions { display: flex; gap: 15px; font-size: 13px; color: #aaa; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .video-actions span { cursor: pointer; display: flex; align-items: center; gap: 5px; }
+        .video-actions span:hover { color: #fff; }
 
-        .header-actions { display: flex; gap: 15px; align-items: center; }
-        .upload-icon-btn { background: #222; border: none; color: #fff; padding: 8px 14px; border-radius: 20px; font-size: 13px; cursor: pointer; font-weight: 500; }
-
-        /* Categories Bar */
-        .categories { display: flex; gap: 10px; padding: 12px 16px; background: #0f0f0f; overflow-x: auto; border-bottom: 1px solid #222; white-space: nowrap; }
-        .cat-chip { background: #272727; padding: 6px 12px; border-radius: 8px; font-size: 13px; cursor: pointer; transition: 0.2s; }
-        .cat-chip.active, .cat-chip:hover { background: #fff; color: #0f0f0f; font-weight: 500; }
-
-        /* Video Feed Grid */
-        .feed-container { padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; flex: 1; }
-        .video-card { background: transparent; display: flex; flex-direction: column; cursor: pointer; gap: 10px; }
-        .thumbnail { width: 100%; height: 160px; background: #212121; border-radius: 12px; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; color: #777; font-size: 14px; }
-        .thumbnail video { width: 100%; height: 100%; object-fit: cover; display: none; }
+        /* Right Sidebar: Recommendations / Upload Feed */
+        .sidebar { flex: 1; background: #181818; border-left: 1px solid #282828; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; }
+        .sidebar h3 { font-size: 14px; margin-bottom: 5px; color: #aaa; }
         
-        .video-info { display: flex; gap: 12px; }
-        .channel-avatar { width: 36px; height: 36px; background: #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 14px; color: #fff; }
-        .video-details h3 { font-size: 14px; font-weight: 500; color: #fff; line-height: 20px; margin-bottom: 4px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .video-details p { font-size: 12px; color: #aaa; }
+        .recommendation-card { display: flex; gap: 10px; cursor: pointer; padding: 6px; border-radius: 6px; transition: 0.2s; }
+        .recommendation-card:hover { background: #272727; }
+        .thumbnail-box { width: 120px; height: 70px; background: #333; border-radius: 4px; display: flex; justify-content: center; align-items: center; font-size: 11px; color: #888; flex-shrink: 0; overflow: hidden; }
+        .thumbnail-box video { width: 100%; height: 100%; object-fit: cover; }
+        .rec-info { display: flex; flex-direction: column; justify-content: center; gap: 4px; }
+        .rec-title { font-size: 13px; font-weight: 500; color: #f1f1f1; line-height: 1.2; }
+        .rec-channel { font-size: 11px; color: #aaa; }
 
-        /* Watch Modal Player */
-        #watchModal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #0f0f0f; z-index: 1000; display: none; flex-direction: column; padding: 20px; overflow-y: auto; }
-        .back-btn { background: #222; border: none; color: #fff; padding: 8px 16px; border-radius: 6px; cursor: pointer; width: fit-content; margin-bottom: 15px; font-weight: bold; }
-        .player-wrapper { width: 100%; max-width: 900px; margin: 0 auto; background: #000; border-radius: 12px; overflow: hidden; }
-        .player-wrapper video { width: 100%; max-height: 500px; display: block; }
-        .watch-title { max-width: 900px; margin: 15px auto 0; font-size: 18px; font-weight: bold; width: 100%; }
+        .upload-section { background: #222; padding: 10px; border-radius: 8px; text-align: center; border: 1px dashed #555; }
+        .upload-section label { font-size: 13px; color: #3ea6ff; cursor: pointer; font-weight: 500; }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo-area" onclick="closeWatch()"><span>▶</span> VivekTube</div>
-        <div class="search-bar">
-            <input type="text" placeholder="Search videos...">
-            <button>🔍</button>
-        </div>
-        <div class="header-actions">
-            <input type="file" id="localVideoUpload" accept="video/*" style="display: none;" onchange="publishVideo(event)">
-            <button class="upload-icon-btn" onclick="document.getElementById('localVideoUpload').click()">＋ Upload</button>
-        </div>
+        <div class="logo-area">▶ Vivek Tube</div>
+        <input type="text" class="search-bar" placeholder="Search videos...">
+        <div class="user-profile">VT</div>
     </header>
 
-    <div class="categories">
-        <div class="cat-chip active">All</div>
-        <div class="cat-chip">Gaming</div>
-        <div class="cat-chip">Tech</div>
-        <div class="cat-chip">Music</div>
-        <div class="cat-chip">Biotechnology</div>
-        <div class="cat-chip">Podcasts</div>
-        <div class="cat-chip">Live</div>
-    </div>
-
-    <!-- Main Video Feed -->
-    <div class="feed-container" id="videoFeed">
-        <!-- Sample YouTube Video Cards -->
-        <div class="video-card" onclick="openSampleVideo('https://www.w3schools.com/html/mov_bbb.mp4', 'Big Buck Bunny Cinematic Trailer 4K')">
-            <div class="thumbnail">
-                <video src="https://www.w3schools.com/html/mov_bbb.mp4" muted></video>
-                ▶ Play Preview
+    <div class="main-container">
+        <!-- Main Video Watch Section -->
+        <div class="content-area">
+            <div class="player-wrapper">
+                <video id="mainPlayer" controls poster="" src="https://www.w3schools.com/html/mov_bbb.mp4"></video>
             </div>
-            <div class="video-info">
-                <div class="channel-avatar" style="background:#e91e63;">V</div>
-                <div class="video-details">
-                    <h3>Big Buck Bunny Cinematic Trailer 4K (Remastered)</h3>
-                    <p>Vivek AI Studio • 120K views • 2 days ago</p>
+            <div class="video-title" id="displayTitle">Big Buck Bunny - Official Cinematic Sample</div>
+            <div class="video-actions">
+                <span>👍 Like</span>
+                <span>👎 Dislike</span>
+                <span> शेअर Share</span>
+                <span> 📥 Download</span>
+                <span onclick="triggerUpload()" style="color: #3ea6ff; font-weight: bold;">＋ Upload Video</span>
+            </div>
+        </div>
+
+        <!-- Sidebar Recommendations & Custom Uploads -->
+        <div class="sidebar">
+            <div class="upload-section">
+                <input type="file" id="localVideoInput" accept="video/*" style="display: none;" onchange="loadCustomVideo(event)">
+                <label for="localVideoInput">＋ Upload Your Own Video</label>
+            </div>
+            <h3>Up Next / Feed</h3>
+            
+            <div class="recommendation-card" onclick="changeVideo('https://www.w3schools.com/html/mov_bbb.mp4', 'Big Buck Bunny - Official Cinematic Sample')">
+                <div class="thumbnail-box"><video src="https://www.w3schools.com/html/mov_bbb.mp4"></video></div>
+                <div class="rec-info">
+                    <div class="rec-title">Big Buck Bunny</div>
+                    <div class="rec-channel">Blender Foundation</div>
+                </div>
+            </div>
+
+            <div class="recommendation-card" onclick="changeVideo('https://www.w3schools.com/html/movie.mp4', 'HTML5 Sample Video Presentation')">
+                <div class="thumbnail-box"><video src="https://www.w3schools.com/html/movie.mp4"></video></div>
+                <div class="rec-info">
+                    <div class="rec-title">HTML5 Sample Video</div>
+                    <div class="rec-channel">W3Schools Official</div>
                 </div>
             </div>
         </div>
-
-        <div class="video-card" onclick="openSampleVideo('https://www.w3schools.com/html/mov_bbb.mp4', 'Biotechnology 1st Year Lecture - Cell Structure')">
-            <div class="thumbnail">
-                <video src="https://www.w3schools.com/html/mov_bbb.mp4" muted></video>
-                ▶ Play Preview
-            </div>
-            <div class="video-info">
-                <div class="channel-avatar" style="background:#2196f3;">B</div>
-                <div class="video-details">
-                    <h3>Biotechnology 1st Year Lecture - Cell Structure & Organelles</h3>
-                    <p>Tyagi Education • 45K views • 1 week ago</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- YouTube Watch Page Modal -->
-    <div id="watchModal">
-        <button class="back-btn" onclick="closeWatch()">← Back to Feed</button>
-        <div class="player-wrapper">
-            <video id="activePlayer" controls autoplay></video>
-        </div>
-        <div class="watch-title" id="watchTitle">Video Title Here</div>
     </div>
 
     <script>
-        const watchModal = document.getElementById('watchModal');
-        const activePlayer = document.getElementById('activePlayer');
-        const watchTitle = document.getElementById('watchTitle');
-        const videoFeed = document.getElementById('videoFeed');
+        const mainPlayer = document.getElementById('mainPlayer');
+        const displayTitle = document.getElementById('displayTitle');
+        const localVideoInput = document.getElementById('localVideoInput');
 
-        function openSampleVideo(url, title) {
-            activePlayer.src = url;
-            watchTitle.innerText = title;
-            watchModal.style.display = 'flex';
-            activePlayer.play();
+        function changeVideo(url, title) {
+            mainPlayer.src = url;
+            mainPlayer.play();
+            displayTitle.innerText = title;
         }
 
-        function closeWatch() {
-            activePlayer.pause();
-            activePlayer.src = '';
-            watchModal.style.display = 'none';
+        function triggerUpload() {
+            localVideoInput.click();
         }
 
-        function publishVideo(event) {
+        function loadCustomVideo(event) {
             const file = event.target.files[0];
             if (file) {
                 const url = URL.createObjectURL(file);
-                const card = document.createElement('div');
-                card.className = 'video-card';
-                card.onclick = () => openSampleVideo(url, file.name);
-                
-                card.innerHTML = `
-                    <div class="thumbnail" style="background:#000;">
-                        <video src="${url}"></video>
-                        ▶ Watch
-                    </div>
-                    <div class="video-info">
-                        <div class="channel-avatar" style="background:#ff5722;">T</div>
-                        <div class="video-details">
-                            <h3>${file.name}</h3>
-                            <p>Tyagi Ji Official • Just now • 1 view</p>
-                        </div>
-                    </div>
-                `;
-                videoFeed.prepend(card);
-                alert('Video successfully uploaded to your YouTube feed!');
+                changeVideo(url, file.name);
             }
         }
     </script>
