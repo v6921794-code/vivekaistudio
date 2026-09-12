@@ -3,28 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YouTube</title>
+    <title>YouTube Pro</title>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: Roboto, Arial, sans-serif; }
         body { background: #0f0f0f; color: #fff; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
 
-        /* Top Header */
         header { display: flex; justify-content: space-between; align-items: center; padding: 10px 16px; background: #0f0f0f; }
-        .logo-area { display: flex; align-items: center; gap: 4px; font-weight: bold; font-size: 20px; color: #fff; }
+        .logo-area { display: flex; align-items: center; gap: 4px; font-weight: bold; font-size: 20px; color: #fff; cursor: pointer; }
         .logo-area span { color: #ff0000; font-size: 24px; }
-        .header-icons { display: flex; gap: 20px; font-size: 20px; align-items: center; }
+        .header-icons { display: flex; gap: 20px; font-size: 20px; align-items: center; cursor: pointer; }
         .notif-badge { background: #ff0000; color: #fff; font-size: 10px; padding: 1px 5px; border-radius: 10px; position: relative; top: -8px; left: -15px; }
 
-        /* Category Chips Bar */
         .chips-bar { display: flex; gap: 8px; padding: 8px 16px; background: #0f0f0f; overflow-x: auto; white-space: nowrap; border-bottom: 1px solid #222; }
         .chip { background: #272727; color: #fff; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 500; cursor: pointer; }
         .chip.active { background: #fff; color: #0f0f0f; }
 
-        /* Main Scrollable Feed */
         .feed-container { flex: 1; overflow-y: auto; padding-bottom: 60px; }
 
         /* Video Feed Item */
-        .video-card { margin-bottom: 15px; background: #121212; }
+        .video-card { margin-bottom: 15px; background: #121212; cursor: pointer; }
         .video-player-box { width: 100%; aspect-ratio: 16/9; background: #000; position: relative; display: flex; justify-content: center; align-items: center; }
         .video-player-box video { width: 100%; height: 100%; object-fit: cover; }
         
@@ -34,107 +31,172 @@
         .video-title { font-size: 14px; font-weight: 500; color: #f1f1f1; line-height: 1.3; margin-bottom: 4px; }
         .video-sub { font-size: 12px; color: #aaa; }
 
-        /* Shorts Section */
         .shorts-section { padding: 15px 0; background: #0f0f0f; border-top: 6px solid #222; border-bottom: 6px solid #222; }
         .shorts-header { display: flex; align-items: center; gap: 8px; padding: 0 16px 10px 16px; font-weight: bold; font-size: 16px; }
         .shorts-grid { display: flex; gap: 10px; padding: 0 16px; overflow-x: auto; }
-        .short-card { min-width: 130px; height: 210px; background: #222; border-radius: 10px; overflow: hidden; position: relative; flex-shrink: 0; }
+        .short-card { min-width: 130px; height: 210px; background: #222; border-radius: 10px; overflow: hidden; position: relative; flex-shrink: 0; cursor: pointer; }
         .short-card video { width: 100%; height: 100%; object-fit: cover; }
         .short-title { position: absolute; bottom: 8px; left: 8px; right: 8px; font-size: 11px; font-weight: bold; color: #fff; text-shadow: 1px 1px 3px #000; line-height: 1.2; }
 
-        /* Bottom Navigation Bar (Exact YouTube Style) */
+        /* Bottom Navigation Bar */
         nav.bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; height: 55px; background: #0f0f0f; border-top: 1px solid #222; display: flex; justify-content: space-around; align-items: center; z-index: 100; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 2px; color: #aaa; font-size: 10px; cursor: pointer; }
         .nav-item span:first-child { font-size: 20px; }
         .nav-item.active { color: #fff; }
         .nav-item.create-btn span:first-child { background: #fff; color: #000; width: 36px; height: 36px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 22px; font-weight: bold; }
+
+        /* Dynamic Views */
+        .view-screen { display: none; padding: 20px; text-align: center; }
+        .view-screen.active-view { display: block; }
     </style>
 </head>
 <body>
 
-    <!-- Top Header -->
     <header>
-        <div class="logo-area"><span>▶</span>YouTube</div>
+        <div class="logo-area" onclick="switchTab('home')"><span>▶</span>YouTube</div>
         <div class="header-icons">
-            <div>🔔<span class="notif-badge">9+</span></div>
-            <div>🔍</div>
+            <div onclick="alert('No new notifications')">🔔<span class="notif-badge">9+</span></div>
+            <div onclick="searchPrompt()">🔍</div>
         </div>
     </header>
 
     <!-- Category Chips -->
-    <div class="chips-bar">
-        <div class="chip">🧭</div>
-        <div class="chip active">All</div>
-        <div class="chip">Music</div>
-        <div class="chip">English grammar</div>
-        <div class="chip">Multiple choice</div>
-        <div class="chip">Podcasts</div>
-        <div class="chip">Gaming</div>
+    <div class="chips-bar" id="chipsBar">
+        <div class="chip active" onclick="filterCategory(this, 'All')">All</div>
+        <div class="chip" onclick="filterCategory(this, 'Music')">Music</div>
+        <div class="chip" onclick="filterCategory(this, 'English grammar')">English grammar</div>
+        <div class="chip" onclick="filterCategory(this, 'Technology')">Technology</div>
+        <div class="chip" onclick="filterCategory(this, 'Podcasts')">Podcasts</div>
     </div>
 
-    <!-- Feed Container -->
-    <div class="feed-container">
-        
-        <!-- Main Video Card -->
-        <div class="video-card">
+    <!-- MAIN HOME VIEW -->
+    <div id="homeView" class="feed-container view-screen active-view">
+        <div class="video-card" onclick="playVideo('https://www.w3schools.com/html/mov_bbb.mp4', 'Save 10% On Flipkart Fashion & Skincare Products - Shop Now & Save')">
             <div class="video-player-box">
-                <video controls src="https://www.w3schools.com/html/mov_bbb.mp4" poster=""></video>
+                <video src="https://www.w3schools.com/html/mov_bbb.mp4" muted></video>
             </div>
             <div class="video-details">
                 <div class="channel-avatar">T</div>
                 <div class="video-meta">
                     <div class="video-title">Save 10% On Flipkart Fashion & Skincare Products - Shop Now & Save</div>
-                    <div class="video-sub">Sponsored · Flipkart</div>
+                    <div class="video-sub">Sponsored · Flipkart · 1M views · 2 days ago</div>
                 </div>
-                <div style="color: #aaa; font-size: 18px;">⋮</div>
+                <div style="color: #aaa; font-size: 18px;" onclick="event.stopPropagation(); alert('Options: Save, Share, Report');">⋮</div>
             </div>
         </div>
 
-        <!-- Shorts Section -->
         <div class="shorts-section">
             <div class="shorts-header">
                 <span style="color: #ff0000; font-size: 20px;">⚡</span> Shorts
             </div>
             <div class="shorts-grid">
-                <div class="short-card">
+                <div class="short-card" onclick="playVideo('https://www.w3schools.com/html/movie.mp4', 'NO, I HAVE THE BEST PHONE! - Short')">
                     <video src="https://www.w3schools.com/html/movie.mp4" autoplay muted loop></video>
                     <div class="short-title">NO, I HAVE THE BEST PHONE!</div>
                 </div>
-                <div class="short-card">
+                <div class="short-card" onclick="playVideo('https://www.w3schools.com/html/mov_bbb.mp4', 'Amazing Wildlife Moments - Short')">
                     <video src="https://www.w3schools.com/html/mov_bbb.mp4" autoplay muted loop></video>
                     <div class="short-title">Amazing Wildlife & Nature Moments</div>
                 </div>
-                <div class="short-card">
-                    <video src="https://www.w3schools.com/html/movie.mp4" autoplay muted loop></video>
-                    <div class="short-title">New Tech Gadgets Review 2026</div>
-                </div>
             </div>
         </div>
+    </div>
 
+    <!-- SHORTS VIEW -->
+    <div id="shortsView" class="view-screen">
+        <h2>⚡ Shorts Reel Feed</h2>
+        <p style="color: #aaa; margin-top: 10px;">Swipe up or tap home to go back.</p>
+        <video src="https://www.w3schools.com/html/movie.mp4" controls autoplay style="width: 100%; max-height: 400px; margin-top: 20px; border-radius: 10px;"></video>
+    </div>
+
+    <!-- SUBSCRIPTIONS VIEW -->
+    <div id="subscriptionsView" class="view-screen">
+        <h2>📺 Subscriptions</h2>
+        <p style="color: #aaa; margin-top: 10px;">Latest videos from your subscribed channels will appear here.</p>
+    </div>
+
+    <!-- YOU / PROFILE VIEW -->
+    <div id="youView" class="view-screen">
+        <div style="display: flex; align-items: center; gap: 15px; justify-content: center; margin-top: 20px;">
+            <div style="width: 60px; height: 60px; background: #ff5722; border-radius: 50%; font-size: 24px; font-weight: bold; display: flex; align-items: center; justify-content: center;">T</div>
+            <div style="text-align: left;">
+                <h3>Tyagi ji</h3>
+                <p style="color: #aaa; font-size: 13px;">@tyagiji_studio</p>
+            </div>
+        </div>
+        <p style="color: #aaa; margin-top: 30px;">Your uploaded videos and history management.</p>
+        <input type="file" id="uploadInput" accept="video/*" style="display: none;" onchange="handleUpload(event)">
+        <button onclick="document.getElementById('uploadInput').click()" style="background: #ff0000; color: #fff; border: none; padding: 10px 20px; border-radius: 6px; font-weight: bold; margin-top: 20px; cursor: pointer;">Upload New Video</button>
     </div>
 
     <!-- Bottom Navigation Bar -->
     <nav class="bottom-nav">
-        <div class="nav-item active">
+        <div class="nav-item active" id="navHome" onclick="switchTab('home')">
             <span>🏠</span>
             <span>Home</span>
         </div>
-        <div class="nav-item">
+        <div class="nav-item" id="navShorts" onclick="switchTab('shorts')">
             <span>⚡</span>
             <span>Shorts</span>
         </div>
-        <div class="nav-item create-btn">
+        <div class="nav-item create-btn" onclick="document.getElementById('uploadInput').click()">
             <span>＋</span>
         </div>
-        <div class="nav-item">
+        <div class="nav-item" id="navSubs" onclick="switchTab('subs')">
             <span>📺</span>
             <span>Subscriptions</span>
         </div>
-        <div class="nav-item">
+        <div class="nav-item" id="navYou" onclick="switchTab('you')">
             <span style="background: #ff5722; color: #fff; width: 22px; height: 22px; border-radius: 50%; font-size: 12px; display: flex; align-items: center; justify-content: center; font-weight: bold;">T</span>
             <span>You</span>
         </div>
     </nav>
 
+    <script>
+        function switchTab(tab) {
+            document.querySelectorAll('.view-screen').forEach(el => el.classList.remove('active-view'));
+            document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+
+            if (tab === 'home') {
+                document.getElementById('homeView').classList.add('active-view');
+                document.getElementById('navHome').classList.add('active');
+            } else if (tab === 'shorts') {
+                document.getElementById('shortsView').classList.add('active-view');
+                document.getElementById('navShorts').classList.add('active');
+            } else if (tab === 'subs') {
+                document.getElementById('subscriptionsView').classList.add('active-view');
+                document.getElementById('navSubs').classList.add('active');
+            } else if (tab === 'you') {
+                document.getElementById('youView').classList.add('active-view');
+                document.getElementById('navYou').classList.add('active');
+            }
+        }
+
+        function filterCategory(element, category) {
+            document.querySelectorAll('.chip').forEach(chip => chip.classList.remove('active'));
+            element.classList.add('active');
+            alert("Filtered by category: " + category);
+        }
+
+        function playVideo(url, title) {
+            alert("Playing: " + title);
+            window.open(url, '_blank');
+        }
+
+        function searchPrompt() {
+            let query = prompt("Search YouTube videos:");
+            if (query) {
+                alert("Searching for: " + query);
+            }
+        }
+
+        function handleUpload(event) {
+            const file = event.target.files[0];
+            if (file) {
+                alert("Video '" + file.name + "' uploaded successfully to your channel!");
+                switchTab('home');
+            }
+        }
+    </script>
 </body>
 </html>
