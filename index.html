@@ -17,7 +17,6 @@
         .upload-overlay { position: absolute; display: flex; flex-direction: column; align-items: center; gap: 10px; z-index: 5; }
         .upload-overlay label { background: #2b2b2b; padding: 10px 20px; border-radius: 6px; cursor: pointer; border: 1px solid #444; }
 
-        /* Dynamic Overlay Elements */
         #textOverlay { position: absolute; bottom: 40px; color: #fff; font-size: 20px; font-weight: bold; text-shadow: 2px 2px 4px #000; display: none; pointer-events: none; }
 
         .timeline-section { height: 210px; background: #181818; border-top: 1px solid #2c2c2c; display: flex; flex-direction: column; }
@@ -35,7 +34,7 @@
 
     <header>
         <h1>Vivek AI Studio</h1>
-        <button class="export-btn" onclick="alert('Video project ready for final rendering!')">Export ↗</button>
+        <button class="export-btn" onclick="alert('Exporting final video with auto song & effects!')">Export ↗</button>
     </header>
 
     <div class="preview-container" id="previewContainer">
@@ -45,7 +44,8 @@
         </div>
         <video id="mainVideo" controls style="display: none;"></video>
         <div id="textOverlay">Sample Subtitle</div>
-        <audio id="bgAudio"></audio>
+        <!-- Automatic Default Background Music Link -->
+        <audio id="bgAudio" src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" preload="auto" loop></audio>
     </div>
 
     <div class="timeline-section">
@@ -53,7 +53,7 @@
             <span onclick="splitClip()">✂ Split</span>
             <span onclick="applyFilter()">🎨 Filter</span>
             <span onclick="addSubtitle()">💬 Subtitle</span>
-            <span onclick="addMusic()">🎵 Music (Song)</span>
+            <span onclick="toggleAutoMusic()">🎵 Auto Song (Playing)</span>
         </div>
         <div class="tracks-container">
             <div class="track" id="videoTrack">
@@ -61,8 +61,8 @@
                 <span>Empty video track</span>
             </div>
             <div class="track" id="audioTrack">
-                <span class="track-label">AUDIO / SONG</span>
-                <span>Empty music track</span>
+                <span class="track-label">AUDIO / AUTO SONG</span>
+                <div class="clip-box" style="background:#2196f3;">Default Cinematic Beat.mp3</div>
             </div>
             <div class="track" id="textTrack">
                 <span class="track-label">TEXT</span>
@@ -71,17 +71,13 @@
         </div>
     </div>
 
-    <input type="file" id="audioInput" accept="audio/*" style="display: none;" onchange="loadAudio(event)">
-
     <script>
         const mainVideo = document.getElementById('mainVideo');
         const bgAudio = document.getElementById('bgAudio');
         const uploadOverlay = document.getElementById('uploadOverlay');
         const videoTrack = document.getElementById('videoTrack');
-        const audioTrack = document.getElementById('audioTrack');
         const textTrack = document.getElementById('textTrack');
         const textOverlay = document.getElementById('textOverlay');
-        const audioInput = document.getElementById('audioInput');
 
         function loadVideo(event) {
             const file = event.target.files[0];
@@ -90,8 +86,16 @@
                 mainVideo.style.display = 'block';
                 uploadOverlay.style.display = 'none';
                 videoTrack.innerHTML = '<span class="track-label">VIDEO</span><div class="clip-box">Video Clip Loaded</div>';
+                
+                // Auto play background music alongside video
+                bgAudio.currentTime = 0;
+                bgAudio.play().catch(e => console.log("Audio autoplay restricted by browser"));
             }
         }
+
+        // Sync audio with video play/pause
+        mainVideo.onplay = function() { bgAudio.play(); };
+        mainVideo.onpause = function() { bgAudio.pause(); };
 
         function splitClip() {
             if (!mainVideo.src) { alert('Load a video first!'); return; }
@@ -117,19 +121,13 @@
             }
         }
 
-        function addMusic() {
-            if (!mainVideo.src) { alert('Load a video first!'); return; }
-            audioInput.click();
-        }
-
-        function loadAudio(event) {
-            const file = event.target.files[0];
-            if (file) {
-                bgAudio.src = URL.createObjectURL(file);
+        function toggleAutoMusic() {
+            if (bgAudio.paused) {
                 bgAudio.play();
-                mainVideo.play();
-                audioTrack.innerHTML = '<span class="track-label">AUDIO / SONG</span><div class="clip-box" style="background:#2196f3;">' + file.name.substring(0, 15) + '...</div>';
-                alert('Song added and synced with video playback!');
+                alert('Auto Background Song Resumed!');
+            } else {
+                bgAudio.pause();
+                alert('Auto Background Song Muted!');
             }
         }
     </script>
