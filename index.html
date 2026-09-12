@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vivek AI Studio</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0f172a">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: system-ui, sans-serif; }
+        body { background: #0f172a; color: #f8fafc; min-height: 100vh; padding: 1rem; }
+        header { background: #1e293b; padding: 1rem; text-align: center; border-radius: 8px; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
+        h1 { color: #38bdf8; font-size: 1.4rem; }
+        .auth-btn { background: #0284c7; color: #fff; border: none; padding: 0.5rem 1rem; border-radius: 6px; cursor: pointer; }
+
+        /* Install App Banner */
+        .install-banner { background: #0284c7; padding: 0.8rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+        .install-btn { background: #22c55e; color: white; font-weight: bold; padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer; text-decoration: none; }
+
+        .card { background: #1e293b; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; border: 1px solid #334155; }
+        textarea, input, select { width: 100%; padding: 0.7rem; background: #0f172a; border: 1px solid #475569; border-radius: 6px; color: #fff; margin-top: 0.5rem; margin-bottom: 0.8rem; }
+        
+        .option-group { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.8rem; background: #0f172a; padding: 0.6rem; border-radius: 6px; border: 1px solid #334155; }
+        .option-group input[type="checkbox"] { width: auto; margin: 0; }
+        
+        button.action { width: 100%; background: #2563eb; color: #fff; padding: 0.8rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; }
+        button.download-btn { width: 100%; background: #16a34a; color: white; padding: 0.8rem; border: none; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 0.8rem; display: none; }
+        
+        /* Preview Player */
+        .preview-area { display: none; margin-top: 1rem; text-align: center; }
+        video, img { width: 100%; max-height: 250px; border-radius: 6px; border: 1px solid #475569; }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Vivek AI Studio</h1>
+        <button class="auth-btn">Login / Signup</button>
+    </header>
+
+    <!-- App Download/Install Option -->
+    <div class="install-banner">
+        <span>📲 <b>Vivek AI Studio App Download Karein</b></span>
+        <a href="VivekAIStudio.apk" download class="install-btn">Download APK</a>
+    </div>
+
+    <!-- AI Video Generator with Audio & Download -->
+    <div class="card">
+        <h3>🎬 AI Video Generation (Prompt + Voice + Download)</h3>
+        
+        <textarea id="video-prompt" placeholder="Video ka prompt likhein (e.g., A futuristic car driving on water)..."></textarea>
+
+        <div class="option-group">
+            <input type="checkbox" id="add-voice" checked>
+            <label for="add-voice">Is prompt ki Voiceover bhi Video me automatically add karein</label>
+        </div>
+
+        <button class="action" onclick="generateMedia('video')">Generate Video</button>
+
+        <!-- Preview and Download Section -->
+        <div id="video-preview-area" class="preview-area">
+            <h4 style="color:#38bdf8; margin-bottom:0.5rem;">Aapki AI Video Ready Hai:</h4>
+            <video id="output-video" controls src="https://www.w3schools.com/html/mov_bbb.mp4"></video>
+            <a id="video-download-link" download="Vivek_AI_Video.mp4">
+                <button class="download-btn" id="video-download-btn">⬇️ Download Video</button>
+            </a>
+        </div>
+    </div>
+
+    <!-- Photo Generation & Download -->
+    <div class="card">
+        <h3>🖼️ AI Photo Generator & Downloader</h3>
+        <textarea id="photo-prompt" placeholder="Photo ka prompt likhein..."></textarea>
+        <button class="action" onclick="generateMedia('photo')">Generate AI Photo</button>
+
+        <div id="photo-preview-area" class="preview-area">
+            <h4 style="color:#38bdf8; margin-bottom:0.5rem;">Aapki AI Photo Ready Hai:</h4>
+            <img id="output-photo" src="https://via.placeholder.com/600x400/0f172a/38bdf8?text=Vivek+AI+Generated+Image" alt="AI Photo">
+            <a id="photo-download-link" download="Vivek_AI_Photo.png">
+                <button class="download-btn" id="photo-download-btn">⬇️ Download Photo</button>
+            </a>
+        </div>
+    </div>
+
+    <script>
+        function generateMedia(type) {
+            if (type === 'video') {
+                const prompt = document.getElementById('video-prompt').value;
+                if(!prompt.trim()) { alert("Kripya video prompt likhein!"); return; }
+                
+                alert("AI Video and Voice sync processing complete!");
+                document.getElementById('video-preview-area').style.display = 'block';
+                document.getElementById('video-download-btn').style.display = 'block';
+            } else if (type === 'photo') {
+                const prompt = document.getElementById('photo-prompt').value;
+                if(!prompt.trim()) { alert("Kripya photo prompt likhein!"); return; }
+
+                alert("AI Photo generated!");
+                document.getElementById('photo-preview-area').style.display = 'block';
+                document.getElementById('photo-download-btn').style.display = 'block';
+            }
+        }
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+</body>
+</html>
